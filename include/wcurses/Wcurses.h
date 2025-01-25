@@ -1,15 +1,23 @@
 #pragma once
-#include "Buffer.h"
-#include "ColorManager.h"
-#include "InputManager.h"
-#include "Terminal.h"
-#include <sstream>
 
+#ifdef _WIN32
+    #include "Buffer.h"
+    #include "ColorManager.h"
+    #include "InputManager.h"
+    #include "Terminal.h"
+    #include <sstream>
+#else
+    #include <string>
+    #include <wcurses/Key.h>
+    #include <wcurses/Point.h>
+#endif
 namespace waki
 {
     class Wcurses
     {
     private:
+
+    #ifdef _WIN32
         __internal::Buffer* _buffer;
         __internal::ColorManager* _color;
         __internal::InputManager* _cin;
@@ -21,8 +29,14 @@ namespace waki
         std::stringstream _dummyStream;
 
         bool _init;
+    #endif
 
+    #ifdef _WIN32
         Wcurses();
+    #else
+        Wcurses() = default;
+    #endif
+
     public:
         // =========================================================================
 	    // ============================= Constructors ==============================
@@ -32,9 +46,13 @@ namespace waki
 
         static Wcurses& createWcurses();
 
-        void initscr(SizeT size);
+    #ifdef _WIN32
+        void start(SizeT size);
+    #else
+        void start();
+    #endif
 
-        void endwin();
+        void end();
         
         // =========================================================================
         // =============================== Operators ===============================
@@ -53,16 +71,16 @@ namespace waki
         Wcurses& operator<<(double val);
         Wcurses& operator<<(long double val);
 
-        Wcurses& operator>>(int val);
-        Wcurses& operator>>(Key val);
+        Wcurses& operator>>(int& val);
+        Wcurses& operator>>(Key& val);
 
-        int getch();
+        int getKey();
 
         // =========================================================================
 	    // ========================== Wcurses Managemen ============================
         // =========================================================================
 
-        void refresh();
+        void refreshScreen();
 
         void startColor();
 
@@ -73,22 +91,24 @@ namespace waki
         void setActivePair(short pair);
         void resetToDefaultPair();
 
+    #ifdef _WIN32
         void setTitle(const std::string& title);
         void setFontSettings(SHORT fontSize, const std::wstring& fontName);
-        
+    #endif
+
         // =========================================================================
         // =========================== Movement Methods ============================
         // =========================================================================
 
-        void move(short y, short x);
+        void moveTo(short y, short x);
         void moveBy(short y, short x);
         
-        Point getYX() const;
+        Point getPos() const;
 
-        void clear();
+        void clearScreen();
 
         void cursSet(int visibility);
     };    
 
-    extern Wcurses& curses;
+    extern Wcurses& wcurses;
 } // namespace waki
