@@ -2,8 +2,6 @@
 
 #ifdef _WIN32
     #include "iostream"
-#else
-    #include "ncurses/ncurses.h"    
 #endif
 
 #ifdef _WIN32
@@ -199,6 +197,62 @@ waki::Wcurses& waki::Wcurses::operator<<(long long val)
     return *this;
 }
 
+waki::Wcurses& waki::Wcurses::operator<<(unsigned short val)
+{
+#ifdef _WIN32
+    if(!_init) {
+        return *this;
+    }
+
+    *_buffer << val;
+#else
+    printw("%u", val);
+#endif
+    return *this;
+}
+
+waki::Wcurses& waki::Wcurses::operator<<(unsigned val)
+{
+#ifdef _WIN32
+    if(!_init) {
+        return *this;
+    }
+
+    *_buffer << val;
+#else
+    printw("%u", val);
+#endif
+    return *this;
+}
+
+waki::Wcurses& waki::Wcurses::operator<<(unsigned long val)
+{
+#ifdef _WIN32
+    if(!_init) {
+        return *this;
+    }
+
+    *_buffer << val;
+#else
+    printw("%lu", val);
+#endif
+    return *this;
+}
+
+waki::Wcurses& waki::Wcurses::operator<<(unsigned long long val)
+{
+#ifdef _WIN32
+    if(!_init) {
+        return *this;
+    }
+
+    *_buffer << val;
+#else
+    printw("%llu", val);
+#endif
+    return *this;
+}
+
 waki::Wcurses& waki::Wcurses::operator<<(float val)
 {
 #ifdef _WIN32
@@ -241,6 +295,11 @@ waki::Wcurses& waki::Wcurses::operator<<(long double val)
     return *this;
 }
 
+ waki::Wcurses& waki::Wcurses::operator<<(waki::Wcurses& (*pf)(Wcurses&))
+ {
+    return  pf(*this);
+ }
+
 waki::Wcurses& waki::Wcurses::operator>>(int& val)
 {
 #ifdef _WIN32
@@ -273,7 +332,7 @@ int waki::Wcurses::getKey()
 {
 #ifdef _WIN32
     if(!_init) {
-        return *this;
+        return 0;
     }
 
     return _cin->getCh();
@@ -465,6 +524,11 @@ void waki::Wcurses::cursSet(int visibility)
 #else 
     curs_set(visibility);
 #endif
+}
+
+waki::Wcurses& waki::endl(waki::Wcurses& wcurses)
+{
+    return wcurses << '\n';
 }
 
 namespace waki

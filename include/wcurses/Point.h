@@ -7,8 +7,14 @@ namespace waki
         _Ty y;
         _Ty x;
 
+        BasePoint(_Ty x, _Ty y);
         BasePoint& operator=(const BasePoint& other);
     };
+
+    template<typename _Ty>
+    BasePoint<_Ty>::BasePoint(_Ty x, _Ty y)
+        : x(x), y(y)
+    { }
 
     template<typename _Ty>
     inline BasePoint<_Ty>& BasePoint<_Ty>::operator=(const BasePoint& other)

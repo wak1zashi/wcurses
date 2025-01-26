@@ -8,6 +8,7 @@
     #include <sstream>
 #else
     #include <string>
+    #include "ncurses/ncurses.h"    
     #include <wcurses/Key.h>
     #include <wcurses/Point.h>
 #endif
@@ -37,10 +38,16 @@ namespace waki
         Wcurses() = default;
     #endif
 
+        Wcurses(Wcurses&) = delete;
+        Wcurses(Wcurses&&) = delete;
+
+        Wcurses& operator=(Wcurses&) = delete;
+        Wcurses& operator=(Wcurses&&) = delete;
+
     public:
-        // =========================================================================
-	    // ============================= Constructors ==============================
-        // =========================================================================
+        // ====================================================================
+	    // =========================== Constructors ===========================
+        // ====================================================================
 
         ~Wcurses();
 
@@ -54,9 +61,9 @@ namespace waki
 
         void end();
         
-        // =========================================================================
-        // =============================== Operators ===============================
-        // =========================================================================
+        // ====================================================================
+        // ============================ Operators =============================
+        // ====================================================================
 
         Wcurses& operator<<(char ch);
         Wcurses& operator<<(const char* str);
@@ -67,18 +74,25 @@ namespace waki
         Wcurses& operator<<(long val);
         Wcurses& operator<<(long long val);
 
+        Wcurses& operator<<(unsigned short val);
+        Wcurses& operator<<(unsigned val);
+        Wcurses& operator<<(unsigned long val);
+        Wcurses& operator<<(unsigned long long val);
+
         Wcurses& operator<<(float val);
         Wcurses& operator<<(double val);
         Wcurses& operator<<(long double val);
+
+        Wcurses& operator<<(Wcurses& (*pf)(Wcurses&));
 
         Wcurses& operator>>(int& val);
         Wcurses& operator>>(Key& val);
 
         int getKey();
 
-        // =========================================================================
-	    // ========================== Wcurses Managemen ============================
-        // =========================================================================
+        // ====================================================================
+	    // ======================== Wcurses Managemen =========================
+        // ====================================================================
 
         void refreshScreen();
 
@@ -96,9 +110,9 @@ namespace waki
         void setFontSettings(SHORT fontSize, const std::wstring& fontName);
     #endif
 
-        // =========================================================================
-        // =========================== Movement Methods ============================
-        // =========================================================================
+        // ====================================================================
+        // ========================= Movement Methods =========================
+        // ====================================================================
 
         void moveTo(short y, short x);
         void moveBy(short y, short x);
@@ -110,5 +124,7 @@ namespace waki
         void cursSet(int visibility);
     };    
 
+    Wcurses& endl(Wcurses& wcurses);
+
     extern Wcurses& wcurses;
-} // namespace waki
+} // namespace waki>
