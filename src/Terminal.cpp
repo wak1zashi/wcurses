@@ -5,6 +5,8 @@
 
     __internal::Terminal::Terminal()
     {
+        _cursorV = true;
+        
         _tHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
         _tWindow = GetConsoleWindow();
@@ -28,12 +30,7 @@
 
     void __internal::Terminal::clearScreen()
     {
-    system("cls");
-    }
-
-    void __internal::Terminal::stopFor(unsigned milliseconds)
-    {
-        Sleep(milliseconds);
+        system("cls");
     }
 
     void __internal::Terminal::resetCursor()
@@ -125,9 +122,11 @@
 
         if(visible) {
             cursorInfo.bVisible = TRUE;
+            _cursorV = true;
         }
         else {
             cursorInfo.bVisible = FALSE;
+            _cursorV = false;
         }
 
         SetConsoleCursorInfo(_tHandle, &cursorInfo);

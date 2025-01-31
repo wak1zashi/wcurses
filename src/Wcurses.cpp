@@ -1,5 +1,5 @@
 #include "wcurses/Wcurses.h"
-
+#include <thread>   
 #ifdef _WIN32
     #include "iostream"
 #endif
@@ -38,6 +38,7 @@ waki::Wcurses& waki::Wcurses::createWcurses()
         
         _cin = new  __internal::InputManager; 
 
+        _term->clearScreen();
         _term->setTerminalSize(size.rows, size.cols);
         _term->setMaximizeButton(false);
         _term->setWindowResizing(false);
@@ -328,7 +329,7 @@ waki::Wcurses& waki::Wcurses::operator>>(Key& val)
     return *this;
 }
 
-int waki::Wcurses::getKey()
+int waki::Wcurses::getCh()
 {
 #ifdef _WIN32
     if(!_init) {
@@ -341,11 +342,56 @@ int waki::Wcurses::getKey()
 #endif
 }
 
+waki::Key waki::Wcurses::getKey()
+{
+#ifdef _WIN32
+    if(!_init) {
+        return Key::EER;
+    }
+
+    return _cin->getKey();
+#else
+    return static_cast<Key>(getch());
+#endif
+}
+
+void waki::Wcurses::noDelay(bool enable)
+{
+#ifdef _WIN32
+    if(!_init) {
+        return;
+    }
+
+    _cin->noDelay(enable);
+#else 
+    nodelay(stdscr, enable);
+#endif
+}
+
+void waki::Wcurses::flushInput()
+{
+#ifdef _WIN32
+    if(!_init) {
+        return;
+    }
+    
+    _cin->clear();
+#else 
+    flushinp();
+#endif
+}
+
 void waki::Wcurses::refreshScreen()
 {
 #ifdef _WIN32
     if(!_init) {
         return;
+    }
+    
+    bool cursV = _term->getCursorVisible();
+
+    if(cursV) {
+        cursSet(false);
     }
 
     _term->moveCursor(0, 0);
@@ -355,6 +401,10 @@ void waki::Wcurses::refreshScreen()
 
     Point cursor = _buffer->getXY(); 
     _term->moveCursor(cursor.y, cursor.x);
+
+    if (cursV) {
+        cursSet(true);
+    }
 #else   
     refresh();
 #endif
@@ -436,6 +486,11 @@ void waki::Wcurses::resetToDefaultPair()
 #else 
     attroff(A_COLOR);
 #endif
+}
+
+void waki::Wcurses::sleep(unsigned milliseconds)
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
 #ifdef _WIN32

@@ -88,7 +88,12 @@ namespace waki
         Wcurses& operator>>(int& val);
         Wcurses& operator>>(Key& val);
 
-        int getKey();
+        int getCh();
+        Key getKey();
+
+        void noDelay(bool enable);
+        
+        void flushInput();
 
         // ====================================================================
 	    // ======================== Wcurses Managemen =========================
@@ -104,6 +109,8 @@ namespace waki
 
         void setActivePair(short pair);
         void resetToDefaultPair();
+
+        void sleep(unsigned milliseconds);
 
     #ifdef _WIN32
         void setTitle(const std::string& title);

@@ -9,44 +9,41 @@ void __internal::InputManager::clear()
 
 int __internal::InputManager::getCh()
 {
-	for (;;)
-	{
-		if (!_kbhit()) {
-            continue; 
-        }
-
-		int keyCode = _getch();
-
-		if (keyCode >= static_cast<int>(waki::Key::SPACE) &&
-			keyCode <= static_cast<int>(waki::Key::TILDE)) {
-			return keyCode;
-		}
-
-		if (keyCode == _ENTER) {
-			return static_cast<int>(waki::Key::ENTER);
-		}
-
-		if (keyCode == _BACKSPACE) {
-			return static_cast<int>(waki::Key::BACKSPACE);
-		}
-
-		if (keyCode == static_cast<int>(waki::Key::ESCAPE))
-		{
-			return keyCode;
-		}
-
-		if (keyCode == _FN_KEY)
-		{
-			keyCode = _getch();
-
-            auto fnKey = _fnKeyMap.find(keyCode);
-			if (fnKey != _fnKeyMap.end()) {
-				return static_cast<int>(fnKey->second);
-			}
-		}
-
-		clear();
+	if (_noDelay && !_kbhit()) {
+		return ERR;
 	}
+
+	int keyCode = _getch();
+
+	if (keyCode >= static_cast<int>(waki::Key::SPACE) &&
+		keyCode <= static_cast<int>(waki::Key::TILDE)) {
+		return keyCode;
+	}
+
+	if (keyCode == _ENTER) {
+		return static_cast<int>(waki::Key::ENTER);
+	}
+
+	if (keyCode == _BACKSPACE) {
+		return static_cast<int>(waki::Key::BACKSPACE);
+	}
+
+	if (keyCode == static_cast<int>(waki::Key::ESCAPE))
+	{
+		return keyCode;
+	}
+
+	if (keyCode == _FN_KEY || keyCode == _F_KEY)
+	{
+		keyCode = _getch();
+
+		auto fnKey = _fnKeyMap.find(keyCode);
+		if (fnKey != _fnKeyMap.end()) {
+			return static_cast<int>(fnKey->second);
+		}
+	}
+
+	return ERR;
 }
 
 waki::Key __internal::InputManager::getKey()

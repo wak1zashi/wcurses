@@ -4,6 +4,7 @@ namespace waki
 {
     enum class Key
     {
+        EER           = -1,
         TAB           = 9,   // 'TAB'
         ENTER         = 10,  // '\n'
         ESCAPE        = 27,  // 'ESC'
@@ -107,6 +108,18 @@ namespace waki
         ARROW_LEFT    = 260,
         ARROW_RIGHT   = 261,
         BACKSPACE     = 263,
+        F1            = 265,
+        F2            = 266,
+        F3            = 267,
+        F4            = 268,
+        F5            = 269,
+        F6            = 270,
+        F7            = 271,
+        F8            = 272,
+        F9            = 273,
+        F10           = 274,
+        F11           = 275,
+        F12           = 276,
         DELETE        = 330,
         INSERT        = 331,
         PAGE_DOWN     = 338,

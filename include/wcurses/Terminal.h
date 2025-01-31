@@ -12,6 +12,8 @@
             HWND _tWindow;
             HANDLE _tHandle;
             DWORD _tMode;
+
+            bool _cursorV;
         public:
             // ================================================================
             // ========================= Constructors =========================
@@ -32,8 +34,6 @@
 
             void clearScreen();
 
-            void stopFor(unsigned milliseconds);
-
             void resetCursor();
             void moveCursor(short y, short x);
 
@@ -53,6 +53,7 @@
             // ================================================================
 
             COORD getMaxSizeTerminal() const;
+            bool getCursorVisible() const { return _cursorV; }
         };    
     } // namespace __internal
 #endif  
