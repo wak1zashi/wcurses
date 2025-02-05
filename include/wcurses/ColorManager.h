@@ -11,21 +11,31 @@ namespace __internal
 		short background = 0;
 	};
 
+    struct RGB
+	{
+		short r;
+		short g;
+        short b;
+	};
+
+
     class ColorManager
     {
     public:
         using PairIndex = short;
+        using ColorIndex = short;
+
         using ColorMap = std::unordered_map<PairIndex, ColorPair>;
+        using CustomColorMap = std::unordered_map<ColorIndex, RGB>;
+
     private:
         ColorMap _colorPairs;
+        CustomColorMap _customColor;
+        
         PairIndex _currPair;
+        
         bool _startColor;
-
-        // ====================================================================
-	    // ========================= Support Methods ==========================
-        // ====================================================================
-
-        std::string decToHex(short value);
+        
     public:
         static const PairIndex DEFAULT_PAIR;
 
@@ -41,7 +51,7 @@ namespace __internal
 
         bool startColor();
         
-        std::string initColor(PairIndex pair, short r, short g, short b);
+        void initColor(PairIndex pair, short r, short g, short b);
         void initPair(PairIndex pairIndex, short foreground, short background);
 
         void initDefaultPair(PairIndex pairIndex);

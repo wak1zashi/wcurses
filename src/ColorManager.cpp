@@ -1,36 +1,8 @@
 #include "wcurses/ColorManager.h"
 
-#include <algorithm>
+#include <sstream>
 
 const __internal::ColorManager::PairIndex __internal::ColorManager::DEFAULT_PAIR = 0;
-
- std::string __internal::ColorManager::decToHex(short value)
- {
-    if (value == 0) {
-        return "0";
-    }
-
-    std::string hex;
-
-    for(; value != 0 ;)
-    {
-        short temp = 0;
-
-        temp = value % 16;
-
-        if(temp < 10) {
-            hex.push_back(static_cast<char>(temp + static_cast <short>('0')));
-        }
-        else {
-            hex.push_back(static_cast<char>(temp + static_cast <short>('7')));
-        }
-
-        value /= 16;
-    }
-
-    std::reverse(hex.begin(), hex.end());
-    return hex;
- }
 
 __internal::ColorManager::ColorManager()
     : _currPair(0), _startColor(false)
@@ -44,10 +16,10 @@ bool __internal::ColorManager::startColor()
     return true;
 }
 
-std::string __internal::ColorManager::initColor(PairIndex pair, short r, short g, short b)
+void __internal::ColorManager::initColor(PairIndex pair, short r, short g, short b)
 {
     if (!_startColor) {
-        return "";
+        return;
     }
 
     auto isInRange = [](short color) -> bool {
@@ -55,16 +27,11 @@ std::string __internal::ColorManager::initColor(PairIndex pair, short r, short g
     };
 
     if (!isInRange(r) || !isInRange(g) || !isInRange(b)) {
-        return "";
+        return;
     }
 
-    std::string color = "\033]4;" + std::to_string(pair) + ";rgb:";
-    color += decToHex(r) += "/";
-    color += decToHex(g) += "/";
-    color += decToHex(b) += "\033\\";
-
-    return color;
-}
+    _customColor[pair] = {r, g, b};
+ }
 
 void __internal::ColorManager::initPair(PairIndex pairIndex, short foreground, short background)
 {
@@ -119,16 +86,38 @@ std::string __internal::ColorManager::getColorCode(PairIndex pairIndex) const
         return ""; 
     }
 
-    std::string colorCode = "";
-
     const auto colorPair = _colorPairs.find(pairIndex);
-    if (colorPair != _colorPairs.end()) 
+    if (colorPair == _colorPairs.end()) {
+        return "";
+    }
+    
+    std::ostringstream colorCode;
+
+    const auto colorIndex0 = _customColor.find(colorPair->second.foreground);
+    if (colorIndex0 != _customColor.end()) 
     {
-        colorCode += "\033[38;5;" + std::to_string(colorPair->second.foreground) + "m";
-        colorCode += "\033[48;5;" + std::to_string(colorPair->second.background) + "m";
+        colorCode << "\033[38;2;"
+        << colorIndex0->second.r << ";"
+        << colorIndex0->second.g << ";"
+        << colorIndex0->second.b << "m";
+    }
+    else {
+        colorCode << "\033[38;5;" << colorPair->second.foreground << "m";
     }
 
-    return colorCode;
+    const auto colorIndex1 = _customColor.find(colorPair->second.background);
+    if (colorIndex1 != _customColor.end()) 
+    {
+        colorCode << "\033[48;2;"
+        << colorIndex1->second.r << ";"
+        << colorIndex1->second.g << ";"
+        << colorIndex1->second.b << "m";
+    }
+    else {
+        colorCode << "\033[48;5;" << colorPair->second.background << "m";
+    }
+
+    return colorCode.str();
 }
 
 std::string __internal::ColorManager::getColorCode(PairIndex pairIndex0, PairIndex pairIndex1) const
@@ -137,21 +126,45 @@ std::string __internal::ColorManager::getColorCode(PairIndex pairIndex0, PairInd
         return ""; 
     }
 
-    std::string colorCode = "";
-
     const auto firstPair  = _colorPairs.find(pairIndex0);
     const auto secondPair = _colorPairs.find(pairIndex1);
 
-    if (firstPair != _colorPairs.end() && secondPair != _colorPairs.end()) 
-    {
-        if (firstPair->second.foreground != secondPair->second.foreground) {
-            colorCode += "\033[38;5;" + std::to_string(secondPair->second.foreground) + "m";
-        }
+    if (firstPair == _colorPairs.end() && secondPair == _colorPairs.end())  {
+        return ""; 
+    }
 
-        if (firstPair->second.background != secondPair->second.background) {
-            colorCode += "\033[48;5;" + std::to_string(secondPair->second.background) + "m";
+    std::ostringstream colorCode;
+    
+    if (firstPair->second.foreground != secondPair->second.foreground) 
+    {
+        const auto colorIndex0 = _customColor.find(secondPair->second.foreground);
+        if (colorIndex0 != _customColor.end()) 
+        {
+            colorCode << "\033[38;2;"
+            << colorIndex0->second.r << ";"
+            << colorIndex0->second.g << ";"
+            << colorIndex0->second.b << "m";
+        }
+        else {
+            colorCode << "\033[38;5;" << secondPair->second.foreground << "m";
         }
     }
 
-    return colorCode;
+    if (firstPair->second.background != secondPair->second.background) 
+    {
+        const auto colorIndex1 = _customColor.find(secondPair->second.background);
+        if (colorIndex1 != _customColor.end()) 
+        {
+            colorCode << "\033[48;2;"
+            << colorIndex1->second.r << ";"
+            << colorIndex1->second.g << ";"
+            << colorIndex1->second.b << "m";
+        }
+        else {
+            colorCode << "\033[48;5;" << secondPair->second.background << "m";
+        }
+
+    }
+
+    return colorCode.str();
 }

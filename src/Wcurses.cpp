@@ -430,7 +430,7 @@ void waki::Wcurses::initColor(short pair, short r, short g, short b)
         return;
     }
 
-    *_term << _color->initColor(pair, r, g, b);
+    _color->initColor(pair, r, g, b);
 #else 
     init_color(pair, r * 1000 / 255, g * 1000 / 255, b * 1000 / 255);
 #endif
